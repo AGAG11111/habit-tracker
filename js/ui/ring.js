@@ -1,4 +1,6 @@
-const SVG_NS = 'http://www.w3.org/2000/svg';
+import { h } from './dom.js';
+
+const SVG_NS ='http://www.w3.org/2000/svg';
 const RADIUS = 50;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
@@ -26,4 +28,12 @@ export function createRing(done, total) {
 
   svg.append(circle('ring-track'), progress);
   return svg;
+}
+
+// Ring with a label inside: "count of target" and the unit it is measured in (e.g. days).
+export function createHabitRing(count, target, unit) {
+  return h('div', { class: 'ring-wrap small', role: 'img', 'aria-label': `${count} מתוך ${target} ${unit}` },
+    createRing(Math.min(count, target), target),
+    h('div', { class: 'ring-label' }, h('span', {}, `${count} מתוך ${target}`), h('small', {}, unit)),
+  );
 }

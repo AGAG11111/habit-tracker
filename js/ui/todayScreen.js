@@ -1,10 +1,12 @@
 import { repository } from '../data/repository.js';
-import { today, parseDate } from '../logic/dates.js';
+import { today, weekDays, parseDate } from '../logic/dates.js';
 import { h } from './dom.js';
+import { createHabitRing } from './ring.js';
 
 // Check-in only. Progress (rings, streaks) lives in the Progress tab.
 export async function renderToday(container) {
   const date = today();
+  const week = weekDays(date);
   let justChecked = null; // habit id that was just ticked, to play the check animation once
 
   async function toggle(habit, isDone) {
@@ -15,8 +17,9 @@ export async function renderToday(container) {
 
   async function draw() {
     const habits = await repository.listHabits();
-    const completions = await repository.listCompletions({ from: date, to: date });
-    const doneToday = new Set(completions.map((c) => c.habitId));
+    const completions = await repository.listCompletions({ from: week[0], to: week[6] });
+    const doneToday = new Set(completions.filter((c) => c.date === date).map((c) => c.habitId));
+    const weekCount = (habitId) => completions.filter((c) => c.habitId === habitId).length;
 
     function row(habit) {
       const isDone = doneToday.has(habit.id);
@@ -32,6 +35,8 @@ export async function renderToday(container) {
           h('strong', {}, `${habit.icon} ${habit.name}`),
           habit.anchor ? h('small', {}, habit.anchor) : null,
         ),
+        // Last child = far left in RTL. Both kinds are measured in days done this week.
+        createHabitRing(weekCount(habit.id), habit.type === 'weekly' ? habit.weeklyTarget : 7, 'ימים'),
       );
     }
 

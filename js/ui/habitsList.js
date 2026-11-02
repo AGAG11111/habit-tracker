@@ -1,5 +1,6 @@
 import { repository } from '../data/repository.js';
 import { h } from './dom.js';
+import { confirmDialog } from './confirmDialog.js';
 import { openHabitForm, formatDuration } from './habitForm.js';
 
 const describe = (habit) => {
@@ -22,7 +23,7 @@ export async function renderHabitsList(container) {
 
     async function confirmDelete(habit) {
       const message = `למחוק את "${habit.name}" לצמיתות?\nכל ההיסטוריה שלו תימחק ולא ניתן לשחזר אותה.\n(אפשר להעביר לארכיון במקום.)`;
-      if (!window.confirm(message)) return;
+      if (!(await confirmDialog({ message, confirmLabel: 'מחיקה' }))) return;
       await repository.deleteHabit(habit.id);
       draw();
     }
