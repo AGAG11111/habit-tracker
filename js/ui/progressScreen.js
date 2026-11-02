@@ -5,6 +5,7 @@ import { describeSchedule } from '../logic/schedule.js';
 import { formatDuration } from './habitForm.js';
 import { h } from './dom.js';
 import { createStreakBadge } from './streakBadge.js';
+import { createHeatmap } from './heatmap.js';
 
 // Per-habit progress: a colorful badge for the current streak, plus the best streak.
 // Shows every active habit, including ones with fixed days that aren't scheduled today.
@@ -26,6 +27,7 @@ export async function renderProgress(container) {
       ),
       // Last child = far left in RTL.
       createStreakBadge(streak.unit, streak.current),
+      createHeatmap(dates, todayString),
     );
   }
 
