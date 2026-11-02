@@ -1,6 +1,8 @@
 import { repository } from '../data/repository.js';
 import { h } from './dom.js';
 import { DAY_LETTERS, DAY_NAMES } from '../logic/schedule.js';
+import { buildBackfillDates } from '../logic/backfill.js';
+import { today } from '../logic/dates.js';
 
 // Short labels for the frequency chips; the row title already says "per week".
 const chipLabel = (times) => (times === 7 ? 'כל יום' : times === 1 ? 'פעם אחת' : times === 2 ? 'פעמיים' : `${times} פעמים`);
@@ -37,6 +39,19 @@ export function openHabitForm(container, habit, onDone) {
       h('label', {}, hoursInput, h('small', {}, 'שעות')),
       h('label', {}, minutesInput, h('small', {}, 'דקות')),
     ));
+  // Only when adding a habit: how long the user has already kept it up. Saved as past
+  // completions, so Progress (streak, badge) reflects it with no special handling.
+  const priorAmountInput = h('input', { class: 'field', type: 'number', inputmode: 'numeric', min: 0, max: 3650, placeholder: '0' });
+  const priorUnitSelect = h('select', { class: 'field' },
+    h('option', { value: 'days' }, 'ימים'),
+    h('option', { value: 'weeks' }, 'שבועות'),
+    h('option', { value: 'months' }, 'חודשים'),
+  );
+  const priorRow = habit ? null : h('div', { class: 'form-row' },
+    h('span', {}, 'הרגל ישן? כמה זמן אתה כבר מתמיד בו? (לא חובה)'),
+    h('div', { class: 'duration-inputs' }, priorAmountInput, priorUnitSelect),
+    h('small', { class: 'hint' }, 'נוסיף את התקופה הזו כביצועים קודמים (עד אתמול), כדי שהרצף וההתקדמות יתחילו מהמקום הנכון.'),
+  );
   const anchorInput = h('input', { class: 'field', type: 'text', maxlength: 120, value: habit?.anchor ?? '', placeholder: 'אחרי שאני… אני…' });
   const notesInput = h('textarea', { class: 'field', rows: 3, maxlength: 500, placeholder: 'הערות חופשיות' }, habit?.notes ?? '');
 
@@ -88,6 +103,7 @@ export function openHabitForm(container, habit, onDone) {
     h('div', { class: 'form-row' }, h('span', {}, 'צבע'), h('div', { class: 'chip-row' }, Object.values(colorButtons))),
     h('label', { class: 'form-row' }, h('span', {}, 'עוגן'), anchorInput),
     durationRow,
+    priorRow,
     h('label', { class: 'form-row' }, h('span', {}, 'הערות'), notesInput),
     errorBox,
     h('div', { class: 'form-actions' },
@@ -106,13 +122,18 @@ export function openHabitForm(container, habit, onDone) {
       onDone();
     } catch (error) {
       // Shown on screen so a failure on a phone (no console) is visible and reportable.
-      errorBox.textContent = `השמירה נכשלה: ${error.name}: ${error.message}`;
+      errorBox.textContent = error.name === 'Error' ? error.message : `השמירה נכשלה: ${error.name}: ${error.message}`;
       errorBox.hidden = false;
     }
   });
 
   async function saveFromForm(name) {
-    await repository.saveHabit({
+    const priorAmount = habit ? 0 : Number(priorAmountInput.value) || 0;
+    const priorDates = priorAmount > 0
+      ? buildBackfillDates({ type: frequency === 7 ? 'daily' : 'weekly', weeklyTarget: frequency, days: [...days] }, priorAmount, priorUnitSelect.value, today())
+      : [];
+    if (priorAmount > 0 && priorDates.length === 0) throw new Error('להרגל שבועי צריך להזין לפחות שבוע של ותק');
+    const saved = await repository.saveHabit({
       ...(habit ? { id: habit.id } : {}),
       name,
       icon,
@@ -124,6 +145,7 @@ export function openHabitForm(container, habit, onDone) {
       anchor: anchorInput.value.trim(),
       notes: notesInput.value.trim(),
     });
+    if (priorDates.length > 0) await repository.setCompletions(saved.id, priorDates);
   }
 
   refresh();

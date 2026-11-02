@@ -65,6 +65,13 @@ test('setCompletion is idempotent and can be undone', async () => {
   assert.equal((await repo.listCompletions()).length, 0);
 });
 
+test('setCompletions marks many dates and skips ones already done', async () => {
+  const repo = createLocalRepository(fakeStorage());
+  await repo.setCompletion('h1', '2026-11-01', true);
+  await repo.setCompletions('h1', ['2026-11-01', '2026-11-02', '2026-11-03']);
+  assert.equal((await repo.listCompletions()).length, 3);
+});
+
 test('listCompletions filters by date range and habit', async () => {
   const repo = createLocalRepository(fakeStorage());
   await repo.setCompletion('h1', '2026-11-01', true);

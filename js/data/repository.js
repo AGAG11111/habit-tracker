@@ -8,6 +8,7 @@
 //   deleteHabit(id)                        -> void    (permanent, also removes its completions)
 //   listCompletions({ from, to, habitId }) -> Completion[]
 //   setCompletion(habitId, date, done)     -> void
+//   setCompletions(habitId, dates)         -> void    (marks many dates done at once)
 //   getReflection(weekStart)               -> string
 //   saveReflection(weekStart, text)        -> void
 //   getSettings() / saveSettings(partial)  -> Settings

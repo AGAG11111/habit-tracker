@@ -101,6 +101,17 @@ export function createLocalRepository(storage) {
       save(state);
     },
 
+    // Bulk version of setCompletion(..., true): one load/save instead of one per date.
+    async setCompletions(habitId, dates) {
+      const state = load();
+      const existing = new Set(state.completions.map((c) => c.id));
+      for (const date of dates) {
+        const id = completionId(habitId, date);
+        if (!existing.has(id)) state.completions.push({ id, habitId, date });
+      }
+      save(state);
+    },
+
     async getReflection(weekStart) {
       return load().reflections[weekStart] ?? '';
     },

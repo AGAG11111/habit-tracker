@@ -7,10 +7,9 @@ const unitWord = (unit, count) => (unit === 'weeks' ? (count === 1 ? 'שבוע' 
 // an encouraging title and the distance to the next milestone. Colors come from .tier-N.
 export function createStreakBadge(unit, current) {
   const tier = getStreakTier(unit, current);
-  const next = tier.nextTarget === null
-    ? 'הגעת לשיא היעדים!'
-    : current === 0
-      ? 'סמן ביצוע כדי להתחיל'
+  // No hint at all while there is no streak yet.
+  const next = current === 0 ? null
+    : tier.nextTarget === null ? 'הגעת לשיא היעדים!'
       : `עוד ${formatStreak(unit, tier.remaining)} ל-${tier.nextTarget}`;
 
   return h('div', { class: `streak-badge tier-${tier.level}`, role: 'img', 'aria-label': `${current} ${unitWord(unit, current)} ברצף. ${tier.title}` },
@@ -18,6 +17,6 @@ export function createStreakBadge(unit, current) {
     h('span', { class: 'badge-number' }, current),
     h('span', { class: 'badge-unit' }, `${unitWord(unit, current)} ברצף`),
     h('span', { class: 'badge-title' }, tier.title),
-    h('small', { class: 'badge-next' }, next),
+    next ? h('small', { class: 'badge-next' }, next) : null,
   );
 }
