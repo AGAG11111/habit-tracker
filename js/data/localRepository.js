@@ -50,6 +50,7 @@ export function createLocalRepository(storage) {
         color: '#4f6bed',
         type: 'daily',
         weeklyTarget: 7,
+        days: [], // fixed weekdays (0 = Sunday ... 6 = Saturday); empty = flexible
         durationMinutes: 0, // 0 = no duration set
         anchor: '',
         notes: '',

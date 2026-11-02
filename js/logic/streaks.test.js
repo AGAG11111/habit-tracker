@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calcStreak, formatStreak } from './streaks.js';
+import { calcStreak, formatStreak, getStreakTier } from './streaks.js';
 
 const daily = { type: 'daily' };
 const weekly = (weeklyTarget) => ({ type: 'weekly', weeklyTarget });
@@ -66,4 +66,25 @@ test('formatStreak handles singular and plural', () => {
   assert.equal(formatStreak('days', 5), '5 ימים');
   assert.equal(formatStreak('weeks', 1), 'שבוע אחד');
   assert.equal(formatStreak('weeks', 3), '3 שבועות');
+});
+
+test('getStreakTier maps a streak to a level and the next milestone', () => {
+  assert.deepEqual(getStreakTier('days', 0), { level: 0, emoji: '🌱', title: 'מתחילים היום', nextTarget: 1, remaining: 1 });
+  assert.equal(getStreakTier('days', 1).level, 1);
+  assert.equal(getStreakTier('days', 2).remaining, 1); // 1 day to reach 3
+  assert.equal(getStreakTier('days', 7).level, 3);
+  assert.equal(getStreakTier('days', 29).nextTarget, 30);
+});
+
+test('getStreakTier tops out at the last level', () => {
+  const top = getStreakTier('days', 100);
+  assert.equal(top.level, 5);
+  assert.equal(top.nextTarget, null);
+  assert.equal(top.remaining, 0);
+});
+
+test('getStreakTier uses week milestones for weekly streaks', () => {
+  assert.equal(getStreakTier('weeks', 2).level, 2);
+  assert.equal(getStreakTier('weeks', 4).level, 3);
+  assert.equal(getStreakTier('weeks', 3).nextTarget, 4);
 });

@@ -1,5 +1,6 @@
 import { repository } from '../data/repository.js';
 import { today, addDays, weekDays, parseDate } from '../logic/dates.js';
+import { isScheduledOn } from '../logic/schedule.js';
 import { h } from './dom.js';
 import { createHabitRing } from './ring.js';
 
@@ -24,7 +25,8 @@ export async function renderToday(container) {
 
   async function draw() {
     const week = weekDays(date);
-    const habits = await repository.listHabits();
+    // Habits with fixed weekdays only show up on those days.
+    const habits = (await repository.listHabits()).filter((habit) => isScheduledOn(habit, date));
     const completions = await repository.listCompletions({ from: week[0], to: week[6] });
     const doneOnDate = new Set(completions.filter((c) => c.date === date).map((c) => c.habitId));
     const weekCount = (habitId) => completions.filter((c) => c.habitId === habitId).length;
@@ -64,7 +66,7 @@ export async function renderToday(container) {
       ),
       habits.length
         ? h('ul', { class: 'habit-list' }, habits.map(row))
-        : h('p', { class: 'placeholder' }, 'אין עדיין הרגלים. הוסף הרגל בלשונית "הרגלים".'),
+        : h('p', { class: 'placeholder' }, 'אין הרגלים ליום הזה. אפשר להוסיף הרגל בלשונית "הרגלים".'),
     );
     justChecked = null;
   }

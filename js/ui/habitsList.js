@@ -2,9 +2,10 @@ import { repository } from '../data/repository.js';
 import { h } from './dom.js';
 import { confirmDialog } from './confirmDialog.js';
 import { openHabitForm, formatDuration } from './habitForm.js';
+import { describeSchedule } from '../logic/schedule.js';
 
 const describe = (habit) => {
-  const frequency = habit.type === 'weekly' ? `${habit.weeklyTarget} פעמים בשבוע` : 'כל יום';
+  const frequency = describeSchedule(habit);
   return habit.durationMinutes ? `${frequency} · ${formatDuration(habit.durationMinutes)}` : frequency;
 };
 

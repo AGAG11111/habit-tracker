@@ -67,3 +67,31 @@ export function formatStreak(unit, count) {
   if (unit === 'weeks') return count === 1 ? 'שבוע אחד' : `${count} שבועות`;
   return count === 1 ? 'יום אחד' : `${count} ימים`;
 }
+
+// Milestones (current streak needed for levels 1-5) per unit. Level 0 = no streak yet.
+const TIER_THRESHOLDS = {
+  days: [1, 3, 7, 14, 30],
+  weeks: [1, 2, 4, 8, 12],
+};
+
+export const TIERS = [
+  { emoji: '🌱', title: 'מתחילים היום' },
+  { emoji: '✨', title: 'התחלה טובה' },
+  { emoji: '💪', title: 'בדרך הנכונה' },
+  { emoji: '🔥', title: 'אש!' },
+  { emoji: '🚀', title: 'פשוט לא עוצר' },
+  { emoji: '🏆', title: 'אלוף!' },
+];
+
+// Which motivational level a streak has reached, and how far the next milestone is.
+export function getStreakTier(unit, current) {
+  const thresholds = TIER_THRESHOLDS[unit];
+  const level = thresholds.filter((threshold) => current >= threshold).length;
+  const nextTarget = thresholds[level] ?? null;
+  return {
+    level,
+    ...TIERS[level],
+    nextTarget,
+    remaining: nextTarget === null ? 0 : nextTarget - current,
+  };
+}

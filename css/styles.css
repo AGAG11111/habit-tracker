@@ -241,3 +241,33 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
 .day-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .day-nav .date-input { flex: 1; text-align: center; }
 .icon-btn:disabled { opacity: 0.35; cursor: default; }
+
+.day-chip { min-width: var(--tap); padding: 0; }
+.chip:disabled:not([aria-pressed="true"]) { opacity: 0.4; cursor: default; }
+.hint { color: var(--text-muted); }
+
+/* Streak badge (Progress tab). Level 0 is neutral; levels 1-5 get warmer and brighter. */
+.streak-badge {
+  flex: none;
+  width: 112px;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--badge-from), var(--badge-to));
+  color: var(--badge-text, #fff);
+}
+.tier-0 { --badge-from: var(--border); --badge-to: var(--border); --badge-text: var(--text-muted); }
+.tier-1 { --badge-from: #5b7cfa; --badge-to: #3b5bdb; }
+.tier-2 { --badge-from: #2f9e44; --badge-to: #237a37; }
+.tier-3 { --badge-from: #f76707; --badge-to: #c2410c; box-shadow: 0 0 14px #f7670755; }
+.tier-4 { --badge-from: #845ef7; --badge-to: #5f3dc4; box-shadow: 0 0 14px #845ef755; }
+.tier-5 { --badge-from: #f59f00; --badge-to: #b45309; box-shadow: 0 0 16px #f59f0088; }
+.badge-emoji { font-size: 1.3rem; line-height: 1; }
+.badge-number { font-size: 2rem; line-height: 1.1; }
+.badge-unit { font-size: 0.8rem; }
+.badge-title { font-size: 0.85rem; margin-top: 2px; }
+.badge-next { font-size: 0.7rem; opacity: 0.9; }
+.streak-badge .badge-next { color: inherit; }
