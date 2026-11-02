@@ -4,12 +4,14 @@ import { h } from './dom.js';
 const ICONS = ['💧', '🏃', '📚', '🧘', '💪', '🥗', '😴', '✍️', '🎸', '🧹', '💊', '🚶', '🧠', '☀️', '🦷', '⭐'];
 const COLORS = ['#4f6bed', '#e5484d', '#f08c00', '#2f9e44', '#12b886', '#1c7ed6', '#ae3ec9', '#868e96'];
 
-const DURATIONS = [5, 10, 15, 20, 30, 45, 60, 90];
-
-export function formatDuration(minutes) {
-  if (minutes < 60) return `${minutes} דקות`;
-  if (minutes === 60) return 'שעה';
-  return `${minutes / 60} שעות`;
+export function formatDuration(totalMinutes) {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const parts = [];
+  if (hours === 1) parts.push('שעה');
+  else if (hours > 1) parts.push(`${hours} שעות`);
+  if (minutes) parts.push(`${minutes} דקות`);
+  return parts.join(' ו-');
 }
 
 // Replaces the container's content with the add/edit form. `habit` is null for a new one.
@@ -20,11 +22,15 @@ export function openHabitForm(container, habit, onDone) {
   let frequency = habit ? (habit.type === 'daily' ? 7 : habit.weeklyTarget) : 7;
 
   const nameInput = h('input', { class: 'field', type: 'text', required: true, maxlength: 60, value: habit?.name ?? '', placeholder: 'למשל: לשתות מים' });
-  const durationSelect = h('select', { class: 'field' },
-    h('option', { value: 0 }, 'ללא'),
-    DURATIONS.map((minutes) => h('option', { value: minutes }, formatDuration(minutes))),
-  );
-  durationSelect.value = String(habit?.durationMinutes ?? 0);
+  // Free-form duration entered as hours + minutes, stored as total minutes (0 = none).
+  const savedMinutes = habit?.durationMinutes ?? 0;
+  const hoursInput = h('input', { class: 'field', type: 'number', inputmode: 'numeric', min: 0, max: 99, placeholder: '0', value: savedMinutes >= 60 ? Math.floor(savedMinutes / 60) : '' });
+  const minutesInput = h('input', { class: 'field', type: 'number', inputmode: 'numeric', min: 0, max: 59, placeholder: '0', value: savedMinutes % 60 || '' });
+  const durationRow = h('div', { class: 'form-row' }, h('span', {}, 'כמה זמן?'),
+    h('div', { class: 'duration-inputs' },
+      h('label', {}, hoursInput, h('small', {}, 'שעות')),
+      h('label', {}, minutesInput, h('small', {}, 'דקות')),
+    ));
   const anchorInput = h('input', { class: 'field', type: 'text', maxlength: 120, value: habit?.anchor ?? '', placeholder: 'אחרי שאני… אני…' });
   const notesInput = h('textarea', { class: 'field', rows: 3, maxlength: 500, placeholder: 'הערות חופשיות' }, habit?.notes ?? '');
 
@@ -58,7 +64,7 @@ export function openHabitForm(container, habit, onDone) {
     h('div', { class: 'form-row' }, h('span', {}, 'אייקון'), h('div', { class: 'chip-row' }, Object.values(iconButtons))),
     h('div', { class: 'form-row' }, h('span', {}, 'צבע'), h('div', { class: 'chip-row' }, Object.values(colorButtons))),
     h('label', { class: 'form-row' }, h('span', {}, 'עוגן'), anchorInput),
-    h('label', { class: 'form-row' }, h('span', {}, 'כמה זמן?'), durationSelect),
+    durationRow,
     h('label', { class: 'form-row' }, h('span', {}, 'הערות'), notesInput),
     h('div', { class: 'form-actions' },
       h('button', { class: 'btn primary', type: 'submit' }, 'שמירה'),
@@ -77,7 +83,7 @@ export function openHabitForm(container, habit, onDone) {
       color,
       type: frequency === 7 ? 'daily' : 'weekly',
       weeklyTarget: frequency,
-      durationMinutes: Number(durationSelect.value),
+      durationMinutes: Math.max(0, Math.floor(Number(hoursInput.value) || 0)) * 60 + Math.max(0, Math.floor(Number(minutesInput.value) || 0)),
       anchor: anchorInput.value.trim(),
       notes: notesInput.value.trim(),
     });
