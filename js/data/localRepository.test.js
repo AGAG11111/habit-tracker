@@ -23,6 +23,20 @@ test('saveHabit creates with defaults, then updates by id', async () => {
   assert.equal(habits[0].name, 'Read 10 pages');
 });
 
+test('saveHabit works when crypto.randomUUID is unavailable (http on a phone)', async () => {
+  const original = crypto.randomUUID;
+  crypto.randomUUID = undefined;
+  try {
+    const repo = createLocalRepository(fakeStorage());
+    const a = await repo.saveHabit({ name: 'A' });
+    const b = await repo.saveHabit({ name: 'B' });
+    assert.ok(a.id && b.id);
+    assert.notEqual(a.id, b.id);
+  } finally {
+    crypto.randomUUID = original;
+  }
+});
+
 test('archived habits are hidden by default but kept', async () => {
   const repo = createLocalRepository(fakeStorage());
   const h = await repo.saveHabit({ name: 'Run' });

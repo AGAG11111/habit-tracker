@@ -14,6 +14,13 @@ function emptyState() {
   };
 }
 
+// crypto.randomUUID only exists in secure contexts (HTTPS or localhost). Opening the app
+// over plain http from a phone on the local network would crash without this fallback.
+function generateId() {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function createLocalRepository(storage) {
   function load() {
     const raw = storage.getItem(STORAGE_KEY);
@@ -38,7 +45,7 @@ export function createLocalRepository(storage) {
       const state = load();
       const index = input.id ? state.habits.findIndex((h) => h.id === input.id) : -1;
       const base = index >= 0 ? state.habits[index] : {
-        id: crypto.randomUUID(),
+        id: generateId(),
         icon: '⭐',
         color: '#4f6bed',
         type: 'daily',
