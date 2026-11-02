@@ -73,6 +73,14 @@ export function createLocalRepository(storage) {
       return habit;
     },
 
+    // Permanent: removes the habit and all its completions. Archiving is the reversible option.
+    async deleteHabit(id) {
+      const state = load();
+      state.habits = state.habits.filter((h) => h.id !== id);
+      state.completions = state.completions.filter((c) => c.habitId !== id);
+      save(state);
+    },
+
     // Dates are local 'YYYY-MM-DD' strings, so string comparison orders them correctly.
     async listCompletions({ from, to, habitId } = {}) {
       return load().completions.filter(

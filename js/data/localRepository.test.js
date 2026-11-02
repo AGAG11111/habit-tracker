@@ -45,6 +45,17 @@ test('archived habits are hidden by default but kept', async () => {
   assert.equal((await repo.listHabits({ includeArchived: true })).length, 1);
 });
 
+test('deleteHabit removes the habit and only its completions', async () => {
+  const repo = createLocalRepository(fakeStorage());
+  const a = await repo.saveHabit({ name: 'A' });
+  const b = await repo.saveHabit({ name: 'B' });
+  await repo.setCompletion(a.id, '2026-11-02', true);
+  await repo.setCompletion(b.id, '2026-11-02', true);
+  await repo.deleteHabit(a.id);
+  assert.deepEqual((await repo.listHabits({ includeArchived: true })).map((h) => h.name), ['B']);
+  assert.deepEqual((await repo.listCompletions()).map((c) => c.habitId), [b.id]);
+});
+
 test('setCompletion is idempotent and can be undone', async () => {
   const repo = createLocalRepository(fakeStorage());
   await repo.setCompletion('h1', '2026-11-02', true);

@@ -171,13 +171,14 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
 .form-error { margin: 0; padding: 10px 12px; border-radius: 12px; background: #e5484d22; color: #e5484d; word-break: break-word; }
 
 /* Today screen */
-.today-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-.today-head h2 { margin: 0; font-size: 1.15rem; }
+.today-head { display: grid; gap: 4px; margin-bottom: 16px; }
+.today-head h2 { margin: 0; font-size: 1.25rem; }
+.today-head small { color: var(--text-muted); }
 .ring-wrap { position: relative; width: 110px; height: 110px; flex: none; }
 .ring { width: 100%; height: 100%; }
 .ring-track, .ring-progress { fill: none; stroke-width: 10; }
 .ring-track { stroke: var(--border); }
-.ring-progress { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.4s ease; }
+.ring-progress { stroke: var(--habit-color, var(--accent)); stroke-linecap: round; transition: stroke-dashoffset 0.4s ease; }
 .ring-label { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-size: 0.95rem; }
 
 .today-row {
@@ -192,13 +193,13 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
 }
 .check {
   flex: none;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border: 2px solid var(--border);
   border-radius: 50%;
   background: var(--surface);
   color: transparent;
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -215,3 +216,7 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
   .check.pop { animation: none; }
   .ring-progress, .progress-fill { transition: none; }
 }
+
+.ring-wrap.small { width: 84px; height: 84px; flex: none; }
+.ring-wrap.small .ring-label { font-size: 0.78rem; }
+.btn.icon-only { min-width: var(--tap); padding: 0; }

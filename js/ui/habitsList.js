@@ -20,6 +20,13 @@ export async function renderHabitsList(container) {
       draw();
     }
 
+    async function confirmDelete(habit) {
+      const message = `למחוק את "${habit.name}" לצמיתות?\nכל ההיסטוריה שלו תימחק ולא ניתן לשחזר אותה.\n(אפשר להעביר לארכיון במקום.)`;
+      if (!window.confirm(message)) return;
+      await repository.deleteHabit(habit.id);
+      draw();
+    }
+
     function row(habit) {
       const isArchived = habit.status === 'archived';
       return h('li', { class: `habit-row${isArchived ? ' archived' : ''}`, style: `border-inline-start-color:${habit.color}` },
@@ -31,6 +38,8 @@ export async function renderHabitsList(container) {
         ),
         h('button', { class: 'btn', type: 'button', onclick: () => openHabitForm(container, habit, draw) }, 'עריכה'),
         h('button', { class: 'btn', type: 'button', onclick: () => toggleArchive(habit) }, isArchived ? 'שחזור' : 'העבר לארכיון'),
+        // Last child = far left in RTL.
+        h('button', { class: 'btn icon-only', type: 'button', 'aria-label': `מחק את ${habit.name}`, onclick: () => confirmDelete(habit) }, '🗑️'),
       );
     }
 

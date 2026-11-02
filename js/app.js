@@ -1,6 +1,7 @@
 import { repository } from './data/repository.js';
 import { renderHabitsList } from './ui/habitsList.js';
 import { renderToday } from './ui/todayScreen.js';
+import { renderProgress } from './ui/progressScreen.js';
 
 function applyTheme(theme) {
   if (theme === 'light' || theme === 'dark') {
@@ -28,6 +29,7 @@ document.getElementById('theme-toggle').addEventListener('click', async () => {
 // Each screen is a function that fills the container. Adding a screen = adding a line here.
 const screens = {
   today: renderToday,
+  progress: renderProgress,
   habits: renderHabitsList,
 };
 

@@ -5,6 +5,7 @@
 //   listHabits({ includeArchived })        -> Habit[]
 //   saveHabit(habit)                       -> Habit   (creates when no id)
 //   archiveHabit(id, archived = true)      -> Habit
+//   deleteHabit(id)                        -> void    (permanent, also removes its completions)
 //   listCompletions({ from, to, habitId }) -> Completion[]
 //   setCompletion(habitId, date, done)     -> void
 //   getReflection(weekStart)               -> string
