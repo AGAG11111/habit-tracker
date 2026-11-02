@@ -13,9 +13,12 @@
     <button id="theme-toggle" class="icon-btn" type="button" aria-label="החלף מצב כהה/בהיר">◐</button>
   </header>
 
-  <main id="screen">
-    <p class="placeholder">האפליקציה עובדת. בקרוב: מסך "היום".</p>
-  </main>
+  <main id="screen"></main>
+
+  <nav class="tab-bar" aria-label="ניווט ראשי">
+    <button class="tab" type="button" data-screen="today">היום</button>
+    <button class="tab" type="button" data-screen="habits">הרגלים</button>
+  </nav>
 
   <script type="module" src="js/app.js"></script>
 </body>
