@@ -1,4 +1,4 @@
-const THEME_KEY = 'theme';
+import { repository } from './data/repository.js';
 
 function applyTheme(theme) {
   if (theme === 'light' || theme === 'dark') {
@@ -14,12 +14,11 @@ function currentIsDark() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-// Temporary: theme is stored directly here. In a later step it moves into
-// the repository (settings) so all persistence goes through one layer.
-applyTheme(localStorage.getItem(THEME_KEY));
+const settings = await repository.getSettings();
+applyTheme(settings.theme);
 
-document.getElementById('theme-toggle').addEventListener('click', () => {
+document.getElementById('theme-toggle').addEventListener('click', async () => {
   const next = currentIsDark() ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, next);
   applyTheme(next);
+  await repository.saveSettings({ theme: next });
 });
