@@ -43,6 +43,7 @@ export function createLocalRepository(storage) {
         color: '#4f6bed',
         type: 'daily',
         weeklyTarget: 7,
+        durationMinutes: 0, // 0 = no duration set
         anchor: '',
         notes: '',
         status: 'active',

@@ -1,3 +1,11 @@
+/* Secular One ships in a single weight, so bold is turned off below to avoid faux-bold. */
+@font-face {
+  font-family: "Secular One";
+  src: url("../fonts/SecularOne-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
 /* Color tokens: light by default, dark via system preference or manual data-theme. */
 :root {
   --bg: #f6f7fb;
@@ -31,9 +39,13 @@
 
 * { box-sizing: border-box; }
 
+/* Form controls don't inherit the page font by default. */
+button, input, select, textarea { font-family: inherit; }
+h1, h2, strong { font-weight: 400; }
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  font-family: "Secular One", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -87,7 +99,7 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
   font-size: 1rem;
   cursor: pointer;
 }
-.tab[aria-current="true"] { color: var(--accent); font-weight: 700; }
+.tab[aria-current="true"] { color: var(--accent); }
 
 .screen-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 .screen-head h2 { margin: 0; font-size: 1.15rem; }

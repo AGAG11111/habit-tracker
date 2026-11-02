@@ -1,8 +1,11 @@
 import { repository } from '../data/repository.js';
 import { h } from './dom.js';
-import { openHabitForm } from './habitForm.js';
+import { openHabitForm, formatDuration } from './habitForm.js';
 
-const describe = (habit) => (habit.type === 'weekly' ? `${habit.weeklyTarget} פעמים בשבוע` : 'יומי');
+const describe = (habit) => {
+  const frequency = habit.type === 'weekly' ? `${habit.weeklyTarget} פעמים בשבוע` : 'כל יום';
+  return habit.durationMinutes ? `${frequency} · ${formatDuration(habit.durationMinutes)}` : frequency;
+};
 
 export async function renderHabitsList(container) {
   let showArchived = false;
@@ -27,7 +30,7 @@ export async function renderHabitsList(container) {
           habit.anchor ? h('small', {}, habit.anchor) : null,
         ),
         h('button', { class: 'btn', type: 'button', onclick: () => openHabitForm(container, habit, draw) }, 'עריכה'),
-        h('button', { class: 'btn', type: 'button', onclick: () => toggleArchive(habit) }, isArchived ? 'שחזור' : 'ארכוב'),
+        h('button', { class: 'btn', type: 'button', onclick: () => toggleArchive(habit) }, isArchived ? 'שחזור' : 'העבר לארכיון'),
       );
     }
 
