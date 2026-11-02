@@ -3,6 +3,7 @@ import { today, addDays, weekDays, parseDate } from '../logic/dates.js';
 import { isScheduledOn } from '../logic/schedule.js';
 import { h } from './dom.js';
 import { createHabitRing } from './ring.js';
+import { launchConfetti } from './confetti.js';
 
 // Check-in for one day (today by default). Past days can be browsed and marked too;
 // future days can't. Streaks and rings live in the Progress tab / per-habit ring.
@@ -68,6 +69,8 @@ export async function renderToday(container) {
         ? h('ul', { class: 'habit-list' }, habits.map(row))
         : h('p', { class: 'placeholder' }, 'אין הרגלים ליום הזה. אפשר להוסיף הרגל בלשונית "הרגלים".'),
     );
+    // Celebrate only the tick that completes the day's last habit.
+    if (justChecked && habits.every((habit) => doneOnDate.has(habit.id))) launchConfetti();
     justChecked = null;
   }
 

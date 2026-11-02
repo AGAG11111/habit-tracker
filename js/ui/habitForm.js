@@ -4,9 +4,6 @@ import { DAY_LETTERS, DAY_NAMES } from '../logic/schedule.js';
 import { buildBackfillDates } from '../logic/backfill.js';
 import { today } from '../logic/dates.js';
 
-// Short labels for the frequency chips; the row title already says "per week".
-const chipLabel = (times) => (times === 7 ? 'כל יום' : times === 1 ? 'פעם אחת' : times === 2 ? 'פעמיים' : `${times} פעמים`);
-
 const ICONS = ['💧', '🏃', '📚', '🧘', '💪', '🥗', '😴', '✍️', '🎸', '🧹', '💊', '🚶', '🧠', '☀️', '🦷', '⭐'];
 const COLORS = ['#4f6bed', '#e5484d', '#f08c00', '#2f9e44', '#12b886', '#1c7ed6', '#ae3ec9', '#868e96'];
 
@@ -24,10 +21,13 @@ export function formatDuration(totalMinutes) {
 export function openHabitForm(container, habit, onDone) {
   let icon = habit?.icon ?? ICONS[0];
   let color = habit?.color ?? COLORS[0];
-  // One frequency control: 1-6 times a week, or 7 = every day (stored as type 'daily').
-  let frequency = habit ? (habit.type === 'daily' ? 7 : habit.weeklyTarget) : 7;
-  // Optional fixed weekdays. When any are chosen they decide the frequency.
-  const days = new Set(habit?.days ?? []);
+  // The chosen weekdays are the only frequency control: their count is the weekly target
+  // and all 7 means a daily habit. Older habits with "N times a week, any day" have no days;
+  // they keep their stored target until the user picks days.
+  const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+  const legacyTarget = habit && habit.type === 'weekly' && !habit.days?.length ? habit.weeklyTarget : 0;
+  const days = new Set(habit?.days?.length ? habit.days : legacyTarget ? [] : ALL_DAYS);
+  const frequencyOf = () => (days.size || legacyTarget);
 
   const nameInput = h('input', { class: 'field', type: 'text', required: true, maxlength: 60, value: habit?.name ?? '', placeholder: 'למשל: לשתות מים' });
   // Free-form duration entered as hours + minutes, stored as total minutes (0 = none).
@@ -56,8 +56,6 @@ export function openHabitForm(container, habit, onDone) {
   const notesInput = h('textarea', { class: 'field', rows: 3, maxlength: 500, placeholder: 'הערות חופשיות' }, habit?.notes ?? '');
 
   const errorBox = h('p', { class: 'form-error', role: 'alert', hidden: true });
-  const frequencyHint = h('small', { class: 'hint' }, 'מספר הפעמים נקבע לפי הימים שבחרת. כדי לשנות אותו ידנית, בטל את בחירת הימים.');
-  const frequencyButtons = {};
   const dayButtons = {};
   const iconButtons = {};
   const colorButtons = {};
@@ -66,18 +64,18 @@ export function openHabitForm(container, habit, onDone) {
     for (const [key, btn] of Object.entries(buttons)) btn.setAttribute('aria-pressed', String(key === String(selected)));
   }
   function refresh() {
-    if (days.size > 0) frequency = days.size;
-    pick(frequencyButtons, frequency);
-    for (const btn of Object.values(frequencyButtons)) btn.disabled = days.size > 0;
-    frequencyHint.hidden = days.size === 0;
     for (const [day, btn] of Object.entries(dayButtons)) btn.setAttribute('aria-pressed', String(days.has(Number(day))));
+    everyDayButton.setAttribute('aria-pressed', String(days.size === 7));
     pick(iconButtons, icon);
     pick(colorButtons, color);
   }
 
-  for (const value of [1, 2, 3, 4, 5, 6, 7]) {
-    frequencyButtons[value] = h('button', { class: 'chip', type: 'button', onclick: () => { frequency = value; refresh(); } }, chipLabel(value));
-  }
+  // "Every day" toggles all seven weekdays on, or clears them when they are all on.
+  const everyDayButton = h('button', {
+    class: 'chip',
+    type: 'button',
+    onclick: () => { if (days.size === 7) days.clear(); else ALL_DAYS.forEach((d) => days.add(d)); refresh(); },
+  }, 'כל יום');
   DAY_LETTERS.forEach((letter, day) => {
     dayButtons[day] = h('button', {
       class: 'chip day-chip',
@@ -96,9 +94,8 @@ export function openHabitForm(container, habit, onDone) {
   const form = h('form', { class: 'habit-form' },
     h('h2', {}, habit ? 'עריכת הרגל' : 'הרגל חדש'),
     h('label', { class: 'form-row' }, h('span', {}, 'שם'), nameInput),
-    h('div', { class: 'form-row' }, h('span', {}, 'כמה פעמים בשבוע?'), h('div', { class: 'chip-row' }, Object.values(frequencyButtons)),
-      frequencyHint),
-    h('div', { class: 'form-row' }, h('span', {}, 'באילו ימים? (לא חובה, אפשר לבחור כמה)'), h('div', { class: 'chip-row' }, Object.values(dayButtons))),
+    h('div', { class: 'form-row' }, h('span', {}, 'באילו ימים? (מספר הימים הוא כמה פעמים בשבוע)'),
+      h('div', { class: 'chip-row' }, everyDayButton, Object.values(dayButtons))),
     h('div', { class: 'form-row' }, h('span', {}, 'אייקון'), h('div', { class: 'chip-row' }, Object.values(iconButtons))),
     h('div', { class: 'form-row' }, h('span', {}, 'צבע'), h('div', { class: 'chip-row' }, Object.values(colorButtons))),
     h('label', { class: 'form-row' }, h('span', {}, 'עוגן'), anchorInput),
@@ -128,6 +125,8 @@ export function openHabitForm(container, habit, onDone) {
   });
 
   async function saveFromForm(name) {
+    const frequency = frequencyOf();
+    if (frequency === 0) throw new Error('צריך לבחור לפחות יום אחד');
     const priorAmount = habit ? 0 : Number(priorAmountInput.value) || 0;
     const priorDates = priorAmount > 0
       ? buildBackfillDates({ type: frequency === 7 ? 'daily' : 'weekly', weeklyTarget: frequency, days: [...days] }, priorAmount, priorUnitSelect.value, today())
@@ -140,7 +139,8 @@ export function openHabitForm(container, habit, onDone) {
       color,
       type: frequency === 7 ? 'daily' : 'weekly',
       weeklyTarget: frequency,
-      days: [...days].sort((a, b) => a - b),
+      // All seven days is stored as "no fixed days" (= every day).
+      days: days.size === 7 ? [] : [...days].sort((a, b) => a - b),
       durationMinutes: Math.max(0, Math.floor(Number(hoursInput.value) || 0)) * 60 + Math.max(0, Math.floor(Number(minutesInput.value) || 0)),
       anchor: anchorInput.value.trim(),
       notes: notesInput.value.trim(),

@@ -129,21 +129,6 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
   border-radius: 12px;
 }
 .habit-row.archived { opacity: 0.6; }
-
-/* Heatmap sits on its own line under the row's info and badge. */
-.habit-row:has(.heatmap-wrap) { flex-wrap: wrap; }
-.heatmap-wrap { flex-basis: 100%; display: grid; gap: 4px; justify-items: start; }
-.heatmap {
-  display: grid;
-  grid-template-rows: repeat(7, 12px);
-  grid-auto-flow: column;
-  grid-auto-columns: 12px;
-  gap: 3px;
-}
-.heat-cell { border-radius: 3px; background: var(--border); }
-.heat-cell.done { background: var(--habit-color, var(--accent)); }
-.heat-cell.future { visibility: hidden; }
-.heatmap-caption { color: var(--text-muted); font-size: 0.75rem; }
 .habit-icon { font-size: 1.5rem; }
 .habit-info { flex: 1; display: grid; gap: 2px; min-width: 0; }
 .habit-info small { color: var(--text-muted); }
@@ -227,6 +212,19 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
 }
 .progress { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-top: 4px; }
 .progress-fill { height: 100%; background: var(--habit-color, var(--accent)); transition: width 0.3s ease; }
+.confetti { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 100; }
+.confetti-piece {
+  position: absolute;
+  top: -14px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: confetti-fall ease-in forwards;
+}
+@keyframes confetti-fall {
+  to { transform: translate(var(--drift), 105vh) rotate(var(--spin)); opacity: 0.9; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .check.pop { animation: none; }
   .ring-progress, .progress-fill { transition: none; }
