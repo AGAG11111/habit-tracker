@@ -34,6 +34,7 @@ export function openHabitForm(container, habit, onDone) {
   const anchorInput = h('input', { class: 'field', type: 'text', maxlength: 120, value: habit?.anchor ?? '', placeholder: 'אחרי שאני… אני…' });
   const notesInput = h('textarea', { class: 'field', rows: 3, maxlength: 500, placeholder: 'הערות חופשיות' }, habit?.notes ?? '');
 
+  const errorBox = h('p', { class: 'form-error', role: 'alert', hidden: true });
   const frequencyButtons = {};
   const iconButtons = {};
   const colorButtons = {};
@@ -66,6 +67,7 @@ export function openHabitForm(container, habit, onDone) {
     h('label', { class: 'form-row' }, h('span', {}, 'עוגן'), anchorInput),
     durationRow,
     h('label', { class: 'form-row' }, h('span', {}, 'הערות'), notesInput),
+    errorBox,
     h('div', { class: 'form-actions' },
       h('button', { class: 'btn primary', type: 'submit' }, 'שמירה'),
       h('button', { class: 'btn', type: 'button', onclick: onDone }, 'ביטול'),
@@ -76,6 +78,18 @@ export function openHabitForm(container, habit, onDone) {
     event.preventDefault();
     const name = nameInput.value.trim();
     if (!name) return;
+    errorBox.hidden = true;
+    try {
+      await saveFromForm(name);
+      onDone();
+    } catch (error) {
+      // Shown on screen so a failure on a phone (no console) is visible and reportable.
+      errorBox.textContent = `השמירה נכשלה: ${error.name}: ${error.message}`;
+      errorBox.hidden = false;
+    }
+  });
+
+  async function saveFromForm(name) {
     await repository.saveHabit({
       ...(habit ? { id: habit.id } : {}),
       name,
@@ -87,8 +101,7 @@ export function openHabitForm(container, habit, onDone) {
       anchor: anchorInput.value.trim(),
       notes: notesInput.value.trim(),
     });
-    onDone();
-  });
+  }
 
   refresh();
   container.replaceChildren(form);

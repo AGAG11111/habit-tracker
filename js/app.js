@@ -1,6 +1,6 @@
 import { repository } from './data/repository.js';
-import { h } from './ui/dom.js';
 import { renderHabitsList } from './ui/habitsList.js';
+import { renderToday } from './ui/todayScreen.js';
 
 function applyTheme(theme) {
   if (theme === 'light' || theme === 'dark') {
@@ -27,7 +27,7 @@ document.getElementById('theme-toggle').addEventListener('click', async () => {
 
 // Each screen is a function that fills the container. Adding a screen = adding a line here.
 const screens = {
-  today: (container) => container.replaceChildren(h('p', { class: 'placeholder' }, 'בקרוב: מסך "היום".')),
+  today: renderToday,
   habits: renderHabitsList,
 };
 
@@ -40,4 +40,4 @@ function showScreen(name) {
 }
 
 tabs.forEach((tab) => tab.addEventListener('click', () => showScreen(tab.dataset.screen)));
-showScreen('habits');
+showScreen('today');
