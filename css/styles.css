@@ -1,0 +1,66 @@
+/* Color tokens: light by default, dark via system preference or manual data-theme. */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --text: #1c1f2a;
+  --text-muted: #667085;
+  --accent: #4f6bed;
+  --border: #e3e6ef;
+  --tap: 44px; /* minimum touch target */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12141b;
+    --surface: #1c1f2a;
+    --text: #eef0f6;
+    --text-muted: #9aa3b5;
+    --accent: #7b8fff;
+    --border: #2b3040;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #12141b;
+  --surface: #1c1f2a;
+  --text: #eef0f6;
+  --text-muted: #9aa3b5;
+  --accent: #7b8fff;
+  --border: #2b3040;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 { margin: 0; font-size: 1.25rem; }
+
+.icon-btn {
+  min-width: var(--tap);
+  min-height: var(--tap);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+main { padding: 16px; max-width: 640px; margin: 0 auto; }
+.placeholder { color: var(--text-muted); }
