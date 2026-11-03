@@ -212,6 +212,9 @@ main { padding-bottom: calc(var(--tap) + 40px + env(safe-area-inset-bottom)); }
 }
 .progress { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-top: 4px; }
 .progress-fill { height: 100%; background: var(--habit-color, var(--accent)); transition: width 0.3s ease; }
+.backup { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); display: grid; gap: 10px; }
+.backup h3 { margin: 0; font-size: 1rem; }
+.backup p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
 .confetti { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 100; }
 .confetti-piece {
   position: absolute;

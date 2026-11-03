@@ -3,6 +3,7 @@ import { h } from './dom.js';
 import { confirmDialog } from './confirmDialog.js';
 import { openHabitForm, formatDuration } from './habitForm.js';
 import { describeSchedule } from '../logic/schedule.js';
+import { createBackupSection } from './backup.js';
 
 const describe = (habit) => {
   const frequency = describeSchedule(habit);
@@ -58,6 +59,7 @@ export async function renderHabitsList(container) {
             showArchived ? 'הסתר ארכיון' : `הצג ארכיון (${archived.length})`)
         : null,
       showArchived ? h('ul', { class: 'habit-list' }, archived.map(row)) : null,
+      createBackupSection(draw),
     ].filter(Boolean)); // replaceChildren would print "null" for empty slots
   }
 

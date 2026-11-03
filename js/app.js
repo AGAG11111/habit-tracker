@@ -43,3 +43,7 @@ function showScreen(name) {
 
 tabs.forEach((tab) => tab.addEventListener('click', () => showScreen(tab.dataset.screen)));
 showScreen('today');
+
+// Offline support. Service workers only run on HTTPS or localhost, so this is skipped
+// when testing over plain http from a phone.
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
